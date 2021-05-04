@@ -1,134 +1,208 @@
-# MixItUp - A CSS3 and jQuery Filter & Sort Plugin
+# MixItUp 3
 
-### What Is MixItUp?
+[![Build Status](https://travis-ci.org/patrickkunka/mixitup.svg?branch=v3)](https://travis-ci.org/patrickkunka/mixitup)
+[![Coverage Status](https://coveralls.io/repos/github/patrickkunka/mixitup/badge.svg?branch=v3)](https://coveralls.io/github/patrickkunka/mixitup?branch=v3)
+[![jsDelivr Hits](https://data.jsdelivr.com/v1/package/gh/patrickkunka/mixitup/badge?style=rounded)](https://www.jsdelivr.com/package/gh/patrickkunka/mixitup)
 
-MixItUp is a light-weight but powerful jQuery plugin that provides beautiful animated filtering and sorting of categorized and ordered content. It plays nice with your existing HTML and CSS, making it a great choice for fluid, responsive layouts. It's perfect for portfolios, galleries, blogs, or any categorized or ordered content!
+MixItUp is a high-performance, dependency-free library for animated DOM manipulation, giving you the power to filter, sort, add and remove DOM elements with beautiful animations.
 
-### How does it work?
+MixItUp plays nice with your existing HTML and CSS, making it a great choice for responsive layouts and compatible with inline-flow, percentages, media queries, flexbox and more.
 
-MixItUp uses jQuery to decide which elements to hide, show or re-position based on your filters, and then applies the power of CSS3 transitions to smoothly animate these elements to their new locations. It's an extremely efficient approach that makes the most of your modern browser's rendering power, and avoids more resource-heavy approaches involving jQuery .animate() and position: absolute.
+For a live sandbox, full documentation, tutorials and more, please visit [kunkalabs.com/mixitup](https://www.kunkalabs.com/mixitup/).
 
-By not forcing absolute positioning on your design, all elements remain in the document flow and your fluid layout will behave exactly as it normally would - leaving you free to use percentages and media queries to achieve that pixel-perfect responsive design! When MixItUp is finished working its magic, it cleans up its code and gets outta your DOM.
+Migrating from MixItUp 2? Check out the [MixItUp 3 Migration Guide](./docs/mixitup-3-migration-guide.md).
 
-### Which browsers and devices can I use it with?
+#### Licensing
 
-MixItUp is optimized for the current generation of modern, CSS3-ready browsers. Due to its light-weight and efficient approach, It works beautifully and smoothly on all modern devices including smartphones and tablets.
+MixItUp is open source and free to use for non-commercial, educational and non-profit use. For use in commercial projects, **a commercial license is required**. For licensing information and FAQs please see the [MixItUp Licenses](https://www.kunkalabs.com/mixitup/licenses/) page.
 
-In older browsers (such as Internet Explorer 9 and below) that do not support CSS3 transitions, MixItUp will degrade gracefully to a simple hide/show filter. By not including extensive jQuery animation fall-backs, we've kept MixItUp ultra-light and optimized for the future of the web.
+#### Documentation
 
-### How did it begin development?
+- [Factory Function](./docs/mixitup.md)
+- [Configuration Object](./docs/mixitup.Config.md)
+- [Mixer API Methods](./docs/mixitup.Mixer.md)
+- [State Object](./docs/mixitup.State.md)
+- [Mixer Events](./docs/mixitup.Events.md)
 
-At Barrel LLC, many of the designs we create for our clients involve pages with responsive grid layouts and filtering between categories. We weren't satisfied with how the existing filtering plugins out there handled percentage-based responsive behavior, and seeing a need for something lighter and more forward-looking, we decided to build our own solution!
+#### Browser Support
 
-### What constitutes "non-commercial" use?
+MixItUp 3 has been tested for compatibility with the following browsers.
 
-Any project in which you and/or your client are not making profit. MixItUp is currently free to try for everyone, but we will be rolling out one-time commercial licenses soon.
+- Chrome 16+
+- Firefox 16+
+- Safari 6.2+
+- Yandex 14+
+- Edge 13+
+- IE 10+ (with animations), IE 8-9 (no animations)
 
-## GETTING STARTED
+## Getting Started
 
-For the full documentation and list of configuration options please visit out marketing site at [mixitup.io](http://mixitup.io).
+#### Contents
 
-MixItUp couldn't be easier to setup. Just follow these simple steps in your HTML, CSS and JavaScript:
+- [Building the Container](#building-the-container)
+- [Building Controls](#building-controls)
+- [Styling the Container](#styling-the-container)
+- [Loading MixItUp](#loading-mixitup)
+- [Creating a Mixer](#creating-a-mixer)
+- [Configuration](#configuration)
 
-### HTML
+Most commonly, MixItUp is applied to a **"container"** of **"target"** elements, which could be a portfolio of projects, a list of blog posts, a selection of products, or any kind of UI where filtering and/or sorting would be advantageous.
 
-#### Build Your Container and Content
+To get started, follow these simple steps:
 
-MixItUp can be applied to any type of elements within a container, such as an unordered list. Your container should have a unique ID (e.g. 'Grid') that we will use to instantiate MixItUp in your JavaScript. By default, MixItUp will apply itself only to elements within your container with the class 'mix', but this can be changed with the 'targetSelector' configuration option.
+### Building the Container
 
-The filtering categories of each target element should be entered into its class attribute (after the targetSelector class if you are using a class):
+By default, MixItUp will query the container for targets matching the selector `'.mix'`.
 
-	<ul id="Grid">
-    	<li class="mix dogs"></li>
-    	<li class="mix cats"></li>
-    	<li class="mix krakens"></li>
-    	<li class="mix dogs cats"></li>
-    	<li ...
-	</ul>
+```html
+<div class="container">
+    <div class="mix category-a" data-order="1"></div>
+    <div class="mix category-b" data-order="2"></div>
+    <div class="mix category-b category-c" data-order="3"></div>
+    <div class="mix category-a category-d" data-order="4"></div>
+</div>
+```
 
-Additional alphabetic or numeric HTML5 data attributes for sorting may also be added to your target elements:
+Targets can be filtered using any valid selector e.g. `'.category-a'`, and are sorted via optional custom data attributes e.g. `'data-order'`.
 
-	<ul id="Grid">
-    	<li class="mix dogs" data-name="Abby" data-age="2"></li>
-    	<li class="mix cats" data-name="Bucky" data-age="9"></li>
-    	<li class="mix dogs" data-name="Francis" data-age="5"></li>
-    	<li class="mix krakens" data-name="Kraken" data-age="3987"></li>
-    	<li ...
-	</ul>
+Further reading: [Marking-up MixItUp Containers](https://www.kunkalabs.com/tutorials/marking-up-mixitup-containers/)
 
-#### Build Your Filter Controls
+### Building Controls
 
-Filtering happens when filter buttons are clicked. By default MixItUp will apply filtering click handlers to any element with the class 'filter', but this can be changed with the the 'filterSelector' configuration option. When a filter category is active, its corresponding filter buttons gets the class 'active', which can be used for styling active buttons.
+One way that filtering and sorting happens is when controls are clicked. You may use any clickable element as a control, but `<button type="button">` is recommended for accessibility.
 
-These buttons could also be part of an unordered list. The desired filter categories of each filter button should be entered as the "data-filter" attribute. See the 'filterLogic' option for details on how MixItUp handles multiple filters.
+#### Filter Controls
 
-	<ul>
-	    <li class="filter" data-filter="dogs"></li>
-	    <li class="filter" data-filter="cats"></li>
-	    <li class="filter" data-filter="krakens"></li>
-	    <li class="filter" data-filter="dogs cats"></li>
-	</ul>
+Filter controls are queried based on the presence of a `data-filter` attribute, whose value must be `'all'`, `'none'`, or a valid selector string e.g. `'.category-a'`.
 
-Alternatively, elements may be filtered directly via javascript with the 'filter' method.
+```html
+<button type="button" data-filter="all">All</button>
+<button type="button" data-filter=".category-a">Category A</button>
+<button type="button" data-filter=".category-b">Category B</button>
+<button type="button" data-filter=".category-c">Category C</button>
+```
 
-#### Build Your Sort Controls
+Further reading: [Filtering with MixItUp](https://www.kunkalabs.com/tutorials/filtering-with-mixitup/)
 
-Sorting happens when sort buttons are clicked. By default MixItUp will apply sorting click handlers to any element with the class 'sort', but this can be changed with the the 'sortSelector' configuration option.
+#### Sort Controls
 
-These buttons could also be part of an unordered list, with the data attribute to sort by entered as the "data-sort" attribute, and the order to sort by entered as the "data-order" attribute:
+Sort controls are queried based on the presence of a `data-sort` attribute, whose value takes the form of a "sort string" made up of the name of the attribute to sort by, followed by an optional colon-separated sorting order e.g. `'order'`, `'order:asc'`, `'order:desc'`.
 
-	<ul>
-	    <li class="sort" data-sort="data-name" data-order="desc"></li>
-	    <li class="sort" data-sort="data-name" data-order="asc"></li>
-	    <li class="sort" data-sort="data-age" data-order="desc"></li>
-	    <li class="sort" data-sort="data-age" data-order="asc"></li>
-	    <li class="sort" data-sort="default" data-order="asc"></li>
-	    <li class="sort" data-sort="random"></li>
-	</ul>
+```html
+<button type="button" data-sort="order:asc">Ascending</button>
+<button type="button" data-sort="order:descending">Descending</button>
+<button type="button" data-sort="random">Random</button>
+```
 
-Sorting by 'default' maintains the order that elements are originally entered into the DOM, and is useful for toggling between descending and ascending order, without sorting by a specific attribute.
+The values `'default'` and `'random'` are also valid, with `'default'` referring to the original order of target elements in the DOM at the time of mixer instantiation.
 
-Alternatively, elements may be sorted directly via javascript with the 'sort' method.
+Further reading: [Sorting with MixItUp](https://www.kunkalabs.com/tutorials/sorting-with-mixitup/)
 
-### CSS
+### Styling the Container
 
-If you're not sure where to begin with your styling, why not use our template included in the MixItUp Demos Bundle »
+While MixItUp can be added on top of any existing CSS layout, we strongly recommend inline-block or flexbox-based styling over floats and legacy grid frameworks when dealing with grid-based designs for a number of reasons.
 
-If you want to go it alone though, here are some dos and don'ts:
+Further reading: [MixItUp Grid Layouts](https://www.kunkalabs.com/tutorials/mixitup-grid-layouts/)
 
-#### Dos
+### Loading MixItUp
 
-Because MixItUp never interferes the flow, width, or height of your elements, the styling and design is completely up to you. Just be sure to make sure your target elements have the following CSS properties in your stylesheet:
+Firstly, load the MixItUp JavaScript library using the preferred method for your project.
 
-	#Grid .mix{
-	    opacity: 0;
-	    display: none;
-	}
-	
-These two styles ensure that there's no FOUC (flash of unstyled content) or showing of hidden target elements before MixItUp instantiates. This way, MixItUp controls the initial loading of your elements, when your page is ready.
+#### Script Tag
 
-You'll probably want to add these two properties only once you've finished designing your layout and you're ready to instantiate MixItUp - otherwise you won't be able to see your elements!
+The most simple way to load MixItUp in your project is to include it via a `<script>` tag before the closing `</body>` tag on your page.
 
-#### Don'ts
+```html
+        ...
 
-Avoid applying styles such as position: absolute or float: left/right to your elements, as doing so removes your elements from the natural flow of the document. If you're looking to build a layout that doesn't follow the natural horizontal documental flow, we recommend David DeSandro's excellent plugin Isotope. MixItUp is intended as a lightweight and modern filter and sort plugin - not a layout tool.
+        <script src="/path/to/mixitup.min.js"></script>
+    </body>
+</html>
+```
 
-### JavaScript
+With this technique, the MixItUp factory function will be made available via the global variable `mixitup`.
 
-MixItUp uses the jQuery JavaScript library. Make sure you have jQuery loaded into your project's head before MixItUp:
+#### Module Import
 
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script src="js/jquery.mixitup.min.js"></script>
-	...
+If you are building a modular JavaScript project with Webpack, Browserify, or RequireJS, MixItUp can be installed using your package manager of choice (e.g. npm, jspm, yarn) and then imported into any of your project's modules.
 
-MixItUp is instantiated on your container in your JavaScript like this:
+`npm install mixitup --save`
 
-	$(function(){
-     
-	    $('#Grid').mixitup();
-     
-	});
+```js
+// ES2015
 
-And we're done!
+import mixitup from 'mixitup';
+```
 
-As long as you use the default selectors in your HTML, MixItUp should run straight out of the box. If you're looking to do something more advanced, see our the full documentation on [mixitup.io](http://mixitup.io) for all available configuration options.
+```js
+// CommonJS
+
+var mixitup = require('mixitup');
+```
+
+```js
+// AMD
+
+require(['mixitup'], function(mixitup) {
+
+});
+```
+
+### Creating a Mixer
+
+With the `mixitup()` factory function available, you may now instantiate a "mixer" on your container to enable MixItUp functionality.
+
+Call the factory function passing a selector string or a reference to your container element as the first parameter, and a the newly instantiated mixer will be returned.
+
+###### Example: Instantiating a mixer with a selector string
+
+```js
+var mixer = mixitup('.container');
+```
+
+###### Example: Instantiating a mixer with an element reference
+
+```js
+var mixer = mixitup(containerEl);
+```
+
+Your mixer is now ready for you to interact with, either via its controls (see above), or its API (see [Mixer API Methods](./docs/mixitup.Mixer.md)). Click a control or call an API method to check that everything is working correctly.
+
+### Configuration
+
+If you wish to customize the functionality of your mixer, an optional "configuration object" can be passed as the second parameter to the `mixitup` function. If no configuration object is passed, the default settings will be used.
+
+Further reading: [Configuration Object](/docs/mixitup.Config.md)
+
+###### Example: Passing a configuration object
+
+```js
+var mixer = mixitup(containerEl, {
+    selectors: {
+        target: '.blog-item'
+    },
+    animation: {
+        duration: 300
+    }
+});
+```
+
+#### Using the API
+
+If you wish to interact with your mixer via its API, the mixer reference returned by the factory function can be used to call API methods.
+
+###### Example: Calling an API method
+
+```js
+var mixer = mixitup(containerEl);
+
+mixer.filter('.category-a');
+```
+
+Further reading: [Mixer API Methods](./docs/mixitup.Mixer.md)
+
+#### Building a modern JavaScript application?
+
+You may wish to use MixItUp 3's new "dataset" API. Dataset is designed for use in API-driven JavaScript applications, and can be used instead of DOM-based methods such as `.filter()`, `.sort()`, `.insert()`, etc. When used, insertion, removal, sorting and pagination can be achieved purely via changes to your data model, without the uglyness of having to interact with or query the DOM directly.
+
+Further reading: [Using the Dataset API](https://www.kunkalabs.com/tutorials/using-the-dataset-api/)
